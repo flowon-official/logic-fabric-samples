@@ -1,6 +1,6 @@
 using CaseManagementApiHost;
-using Flowon.Xrm.Api.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi;
 using Microsoft.PowerPlatform.Dataverse.Client;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -47,7 +47,45 @@ if (logicApi.MetadataWatchIntervalMinutes > 0 && ApiVersionSetting.IsWatchable(l
     api.AddMetadataWatcher(options => options.TimeIntervalInMinutes = logicApi.MetadataWatchIntervalMinutes);
 }
 
+// Swagger describes the generated endpoints, so you can browse and try them while you
+// develop. It is left out of other environments, which don't publish their API description.
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services
+        .AddEndpointsApiExplorer()
+        .AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = $"{logicApi.Api} ({logicApi.Project})",
+                Version = logicApi.Version,
+            });
+
+            // Lets you paste an access token with Authorize, for endpoints that need a signed-in caller.
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                Description = "An access token for the API from your sign-in provider.",
+            });
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("Bearer", document)] = [],
+            });
+        });
+}
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", $"{logicApi.Api} {logicApi.Version}");
+    });
+}
 
 app.UseHttpsRedirection();
 app.UseRouting();

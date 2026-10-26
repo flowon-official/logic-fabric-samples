@@ -63,6 +63,7 @@ The host is a thin shell. The endpoints, their inputs and outputs, authorization
 | --- | --- | --- |
 | Hosting and sign-in | [`Program.cs`](src/CaseManagementApiHost/Program.cs) | Connects to Dataverse, validates bearer tokens, registers the Logic API runtime and maps the endpoints. |
 | Who the caller is | [`CustomerUserResolver.cs`](src/CaseManagementApiHost/CustomerUserResolver.cs) | Turns the signed-in caller into a Logic API user: signed in or not, a known customer or not, and the `contactId` user property. |
+| Browse and try (Development only) | [`Program.cs`](src/CaseManagementApiHost/Program.cs) | Swagger UI lists the generated endpoints with their inputs and outputs, and lets you call them with a token. |
 | Which version | [`ApiVersionSetting.cs`](src/CaseManagementApiHost/ApiVersionSetting.cs) | Reads `LogicApi:Version` (`draft`, `latest` or `1.0`), so each environment serves its own version without a code change. |
 
 The contact lookup is in [`DataverseCustomerDirectory.cs`](src/CaseManagementApiHost/DataverseCustomerDirectory.cs), behind the [`ICustomerDirectory`](src/CaseManagementApiHost/ICustomerDirectory.cs) interface, so you can replace it with your own customer store and test the resolver without Dataverse.
@@ -138,9 +139,13 @@ In Visual Studio, you can also right-click the project and select **Manage User 
 
    At startup the host connects to Dataverse and loads the API. If the project or API name is wrong, or the version doesn't exist, it stops with an error that says so.
 
-2. The browser opens `https://localhost:7275/health`. The response names the project, the API and the version the host loaded, and whether it's healthy.
+2. The browser opens Swagger UI at `https://localhost:7275/swagger`, which lists every endpoint the API generated, with its inputs and outputs. To call one that needs a signed-in caller, select **Authorize**, paste an access token (without the `Bearer` prefix) and select **Try it out** on the endpoint.
 
-3. Open [`CaseManagementApiHost.http`](src/CaseManagementApiHost/CaseManagementApiHost.http), paste an access token and two case IDs, and send the requests:
+   Swagger is added only when `ASPNETCORE_ENVIRONMENT` is `Development`, as in the launch profiles. In other environments `/swagger` doesn't exist, so the API description isn't published.
+
+   `https://localhost:7275/health` names the project, the API and the version the host loaded, and whether it's healthy.
+
+3. Or open [`CaseManagementApiHost.http`](src/CaseManagementApiHost/CaseManagementApiHost.http), paste an access token and two case IDs, and send the requests:
 
    | Request | Expected answer |
    | --- | --- |
