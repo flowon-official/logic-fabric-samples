@@ -32,7 +32,7 @@ public class CustomerUserResolverTests
         await Resolve(SignedIn(("preferred_username", "jane@contoso.com")));
 
         userType.Received(1).New(true, true, Arg.Is<IReadOnlyDictionary<string, object>>(p =>
-            p.Count == 1 && ContactId.Equals(p[CustomerUserResolver.ContactIdProperty])));
+            p.Count == 1 && IsContact(p[CustomerUserResolver.ContactIdProperty])));
     }
 
     [Fact]
@@ -59,6 +59,10 @@ public class CustomerUserResolverTests
         userType.Received(1).New(true, false);
         await customers.DidNotReceiveWithAnyArgs().FindContactIdAsync(default!, default);
     }
+
+    // contactId is a Lookup to Contact, so the resolver must pass an EntityReference.
+    private static bool IsContact(object value) =>
+        value is Microsoft.Xrm.Sdk.EntityReference reference && reference.LogicalName == "contact" && reference.Id == ContactId;
 
     private Task<IWebUser> Resolve(ClaimsPrincipal principal) =>
         new CustomerUserResolver(customers).ResolveUser(userType, principal);

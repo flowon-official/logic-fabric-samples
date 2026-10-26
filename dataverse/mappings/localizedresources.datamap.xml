@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-16"?>
+<Map type="LocalizedResource">
+  <LocalizedResource name="Case_NewCaseSubject">
+    <Locale lcid="Case_NewCaseSubject">
+      <Source>New {0} priority case {1}: {2}</Source>
+      <Target>New {0} priority case {1}: {2}</Target>
+    </Locale>
+  </LocalizedResource>
+  <LocalizedResource name="Case_NewCaseBody">
+    <Locale lcid="Case_NewCaseBody">
+      <Source>Please triage this case. The first response is due by {0}. Open the case: {1}</Source>
+      <Target>Please triage this case. The first response is due by {0}. Open the case: {1}</Target>
+    </Locale>
+  </LocalizedResource>
+</Map>

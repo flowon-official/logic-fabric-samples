@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-16"?>
+<Map type="Configuration">
+  <Configuration name="SlaResponseDaysHigh" type="2">
+    <Source>1</Source>
+    <Target>1</Target>
+  </Configuration>
+  <Configuration name="SlaResponseDaysStandard" type="2">
+    <Source>3</Source>
+    <Target>3</Target>
+  </Configuration>
+  <Configuration name="EscalationTeamEmail" type="1">
+    <Source>support-escalations@contoso.com</Source>
+    <Target>support-escalations@contoso.com</Target>
+  </Configuration>
+</Map>

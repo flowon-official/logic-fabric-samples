@@ -2,14 +2,15 @@ using System.Security.Claims;
 using Flowon.Xrm;
 using Flowon.Xrm.Api;
 using Flowon.Xrm.Security;
+using EntityReference = Microsoft.Xrm.Sdk.EntityReference;
 
 namespace CaseManagementApiHost;
 
 /// <summary>
 /// Tells Logic API who is calling: whether the caller signed in, whether they are a known
 /// customer contact, and the <c>contactId</c> user property defined in API Studio under
-/// Context &gt; User. The <c>summary</c> action's precondition compares the case's customer
-/// with this value, so customers see only their own cases.
+/// Context &gt; User. The <c>caseSummary</c> query only returns cases whose customer is this
+/// contact, so customers see only their own cases.
 /// </summary>
 public sealed class CustomerUserResolver(ICustomerDirectory customers) : IWebUserResolver
 {
@@ -34,10 +35,10 @@ public sealed class CustomerUserResolver(ICustomerDirectory customers) : IWebUse
             return webUserType.New(isAuthenticated: true, isRegistered: false);
         }
 
-        // 4. Known customer: the value must be a Guid, because contactId is a Unique Identifier.
+        // 4. Known customer: contactId is a Lookup to Contact, so the value is an EntityReference.
         var properties = new Dictionary<string, object>
         {
-            [ContactIdProperty] = contactId.Value,
+            [ContactIdProperty] = new EntityReference("contact", contactId.Value),
         };
 
         return webUserType.New(isAuthenticated: true, isRegistered: true, properties);

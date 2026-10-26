@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-16"?>
+<Map type="Entity">
+  <Entity logicalName="team" primaryNameAttribute="name">
+    <Record>
+      <Source name="Service Triage" id="6c58e707-26d1-f111-a05b-70a8a5b02d61" />
+      <Target name="Service Triage" id="6c58e707-26d1-f111-a05b-70a8a5b02d61" />
+    </Record>
+    <Record>
+      <Source name="Support Supervisors" id="6b5e7215-26d1-f111-a05b-70a8a5b02d61" />
+      <Target name="Support Supervisors" id="6b5e7215-26d1-f111-a05b-70a8a5b02d61" />
+    </Record>
+    <Record>
+      <Source name="Tier 2 Support" id="50200c0f-26d1-f111-a05b-70a8a5b02d61" />
+      <Target name="Tier 2 Support" id="50200c0f-26d1-f111-a05b-70a8a5b02d61" />
+    </Record>
+    <Record>
+      <Source name="Service Managers" id="5e200c0f-26d1-f111-a05b-70a8a5b02d61" />
+      <Target name="Service Managers" id="5e200c0f-26d1-f111-a05b-70a8a5b02d61" />
+    </Record>
+  </Entity>
+</Map>

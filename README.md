@@ -7,7 +7,7 @@ An ASP.NET Core application that hosts a **Logic API** designed in Logic Fabric 
 Use it as a starting point for your own host: change two settings to serve your own API, and adapt the user resolver to your sign-in system.
 
 ```http
-GET https://localhost:7275/service/incident/3f2a9c1e-5b7d-4e8a-9f10-2c3d4e5f6a7b/summary
+GET https://localhost:7275/service/casesummary?caseNumber=CAS-01001-A1B2C3
 Authorization: Bearer eyJ0eXAiOi...
 ```
 
@@ -50,11 +50,11 @@ sequenceDiagram
 
     Note over Portal,DV: For each call
     Portal->>Entra: Sign in, get an access token
-    Portal->>Host: GET /service/incident/{id}/summary + token
+    Portal->>Host: GET /service/casesummary?caseNumber=… + token
     Host->>Host: Validate the token
     Host->>DV: CustomerUserResolver: find the contact by email
-    Host->>DV: Read the case, check the precondition (customer = contactId)
-    Host-->>Portal: 200 with the summary, or 401 / NOT_YOUR_CASE
+    Host->>DV: Query the case by number, only where its customer = contactId
+    Host-->>Portal: 200 with the summary, 204 when it isn't theirs, or 401
 ```
 
 The host is a thin shell. The endpoints, their inputs and outputs, authorization policies and preconditions all come from the API you design in API Studio. The host adds three things the API can't know:
@@ -72,24 +72,25 @@ The contact lookup is in [`DataverseCustomerDirectory.cs`](src/CaseManagementApi
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download) and Visual Studio 2026, Visual Studio Code with the C# Dev Kit, or another editor.
 - A Dataverse environment (or Dynamics 365 Customer Engagement) with Logic Fabric and the **Logic Fabric API Builder** and **Logic Fabric API Builder Tools** solutions installed.
-- The **Customer Portal API** from [Part 6 of the tutorial](https://docs.flowon.com/tutorials/case-management-6-expose/), published at least once, or your own API.
+- The **Customer Portal API**: import it with the rest of the case management sample from [`dataverse/`](dataverse/), or use your own API.
 - A Microsoft Entra ID tenant where you can create app registrations.
 
 ## Set up
 
-### 1. Design and publish the API
+### 1. Import the Case Management sample
 
-Follow [Part 6: Expose it](https://docs.flowon.com/tutorials/case-management-6-expose/#design-the-portal-endpoint). You end up with:
+The [`dataverse/`](dataverse/) folder holds the complete case management solution, including the published **Customer Portal API**. Import it as described in [its README](dataverse/README.md). The API is:
 
 | In API Studio | Value |
 | --- | --- |
 | Project | `Case Management` |
-| API | `Customer Portal API` |
-| User property (Context > User) | `contactId`, type **Unique Identifier** |
-| Module, entity, action | `Service`, `incident` (Case), Read action `summary` |
-| Access control | **Demand Authenticated User**; precondition: the case's customer equals `contactId`, error `NOT_YOUR_CASE` |
+| API | `Customer Portal API`, published version `1.0` |
+| User property (Context > User) | `contactId`, a **Lookup** to Contact |
+| Module, query | `Service`, query `caseSummary` (one row) with the text input `caseNumber` |
+| Query | Cases whose **Case Number** equals `caseNumber` **and** whose **Customer** equals the caller's `contactId` |
+| Access control | **Demand Authenticated User** |
 
-Publish a version (for example **Publish Major Version**, which creates `1.0`). To try the API before publishing, run the host with `LogicApi:Version` set to `draft`, which is the default in the Development environment.
+The query's customer filter is what keeps customers to their own cases: another customer's case number returns nothing, exactly like a number that doesn't exist. To try changes before publishing them, run the host with `LogicApi:Version` set to `draft`, which is the default in the Development environment.
 
 ### 2. Give the host a Dataverse identity
 
@@ -156,14 +157,13 @@ In Visual Studio, you can also right-click the project and select **Manage User 
 
    `https://localhost:7275/health` names the project, the API and the version the host loaded, and whether it's healthy.
 
-3. Or open [`CaseManagementApiHost.http`](src/CaseManagementApiHost/CaseManagementApiHost.http), paste an access token and two case IDs, and send the requests:
+3. Or open [`CaseManagementApiHost.http`](src/CaseManagementApiHost/CaseManagementApiHost.http), paste an access token and two case numbers, and send the requests:
 
    | Request | Expected answer |
    | --- | --- |
    | No token | `401` with `UNAUTHORIZED_ACCESS` |
    | A customer, for a case of their own | `200 OK` with the summary |
-   | A customer, for another customer's case | Refused with `NOT_YOUR_CASE` and `You can only view your own cases.` |
-   | A case that doesn't exist | `404 Not Found` |
+   | A customer, for another customer's case | `204 No Content`, the same as for a case number that doesn't exist |
 
    The test customer must exist as an active contact whose **Email** matches the sign-in name in the token, and must be the **Customer** of the case.
 
@@ -192,11 +192,11 @@ API Studio defines *what* the API knows about a caller: here, the `contactId` us
 | --- | --- | --- |
 | No valid token | `New(isAuthenticated: false)` | **Demand Authenticated User** answers `401`. |
 | Signed in, no active contact with that email | `New(true, isRegistered: false)` | Also refused: a valid token alone isn't enough. |
-| Signed in, contact found | `New(true, true, { contactId })` | The precondition compares the case's customer with `contactId`. |
+| Signed in, contact found | `New(true, true, { contactId })` | The query returns only cases whose customer is `contactId`. |
 
 Rules to keep in mind when you change it:
 
-- **Names and types must match API Studio.** The dictionary key must be the user property name, and the value the matching .NET type (`Guid` for **Unique Identifier**, `string` for **Text**, `int` for **Whole Number** and **Choice**, `EntityReference` for **Lookup**). An unknown name or a wrong type fails the request with a server error.
+- **Names and types must match API Studio.** The dictionary key must be the user property name, and the value the matching .NET type: `EntityReference` for **Lookup** (as `contactId` here), `string` for **Text**, `int` for **Whole Number** and **Choice**, `bool` for **Yes/No**, `DateTime` for **Date and Time**. An unknown name or a wrong type fails the request with a server error.
 - **Take values only from trusted sources:** the token or your own data, never request headers or the body. User properties decide which records a caller can reach.
 - **API roles** are returned as a list of role names, exactly as defined under **Context > Roles**, with `New(isAuthenticated, isRegistered, properties, roles)`. This API has no roles.
 
