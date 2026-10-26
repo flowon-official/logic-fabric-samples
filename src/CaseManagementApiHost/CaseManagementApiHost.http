@@ -1,0 +1,30 @@
+# Requests for the Customer Portal API. Open this file in Visual Studio or VS Code
+# (REST Client) and select "Send request" above a request.
+#
+# Get a token for the API from your sign-in provider and paste it below. For example, with
+# the Azure CLI signed in as a test customer:
+#   az account get-access-token --scope api://<customer-portal-api-client-id>/.default --query accessToken -o tsv
+
+@host = https://localhost:7275
+@token = <paste an access token here>
+# A case of the signed-in customer, and a case of another customer.
+@caseId = 3f2a9c1e-5b7d-4e8a-9f10-2c3d4e5f6a7b
+@otherCaseId = 9b1d4e7a-2c3f-4a5b-8d6e-7f8091a2b3c4
+
+### Which project, API and version the host loaded, and whether it is healthy
+GET {{host}}/health
+
+### A customer reads the summary of one of their own cases: 200 OK
+GET {{host}}/service/incident/{{caseId}}/summary
+Authorization: Bearer {{token}}
+
+### Without a token: 401 with UNAUTHORIZED_ACCESS
+GET {{host}}/service/incident/{{caseId}}/summary
+
+### Another customer's case: refused with NOT_YOUR_CASE
+GET {{host}}/service/incident/{{otherCaseId}}/summary
+Authorization: Bearer {{token}}
+
+### A case that does not exist: 404 Not Found
+GET {{host}}/service/incident/00000000-0000-0000-0000-000000000001/summary
+Authorization: Bearer {{token}}
