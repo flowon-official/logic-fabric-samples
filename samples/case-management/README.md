@@ -39,7 +39,7 @@ You need Dynamics 365 Customer Service (for the Case table), Logic Fabric 1.0.0.
 
 5. **Check it:** create a case without a **Case Type**. The save is refused with `Choose a case type`.
 
-[`dataverse/README.md`](dataverse/README.md) describes every artifact, how the sample differs from the tutorial, and a known issue with **Add Business Days**.
+[`dataverse/README.md`](dataverse/README.md) describes every artifact in the solution and the package.
 
 ## Run the API host
 

@@ -57,23 +57,3 @@ The solution holds what Dataverse needs for the recipe (its two plug-in steps on
 5. **Check it.** Create a case without a **Case Type**: the save is refused with `Choose a case type`. See [Part 4 of the tutorial](https://docs.flowon.com/tutorials/case-management-4-recipe/#test-it-on-a-real-case) for the full test.
 
 To serve the API, run the [API host](../api-host/README.md) against the same environment.
-
-## How it differs from the tutorial
-
-The sample follows the tutorial, with three changes that the product requires today:
-
-| Tutorial | Sample | Why |
-| --- | --- | --- |
-| `Case response due date`: `CreatedOn` **Must have a value** on | Off | The business process passes the case's Created On to the formula inside an expression, and a table column can only go to an optional input there. Created On always has a value, so the result is the same. |
-| User property `contactId` of type **Unique Identifier** | A **Lookup** to Contact | User properties don't support Unique Identifier. |
-| Read action `summary` on `GET /service/incident/{id}/summary` with a `NOT_YOUR_CASE` precondition | Query `caseSummary` on `GET /service/casesummary?caseNumber=…`, filtered on the caller's `contactId` | A read action's precondition can't refer to the requested record yet. The query keeps customers to their own cases: another customer's case returns `204 No Content`, like a number that doesn't exist. |
-
-## Known issue
-
-In Dataverse online, **Add Business Days**, **Is Business Day** and **Business Days Between** currently fail with "'Calendar' entity doesn't contain attribute with Name = 'calendarrules'", whether or not the environment has any business closures defined. The `Case response due date` formula uses **Add Business Days**, so until the fix is released:
-
-- `Route new case` fails at its due-date step, so new cases are not assigned to `Service Triage` and the triage team is not notified.
-- The `Case rules` recipe runs `Route new case` before it starts `Case handling`, so the process doesn't start either. Started on its own, `Case handling` can't calculate the **Triage** due date.
-- `Get case SLA` fails.
-
-Validation before the save is not affected: `New case checks` still refuses incomplete cases.
