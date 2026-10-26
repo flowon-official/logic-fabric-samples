@@ -124,7 +124,18 @@ Clone the repository and set the sign-in values in [`appsettings.json`](src/Case
 }
 ```
 
-The Dataverse connection string contains a secret, so keep it out of `appsettings.json` and source control. Store it with [user secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets) (the project already has a `UserSecretsId`):
+Then set the Dataverse connection string of the host's application user. `appsettings.json` has a placeholder for it under `ConnectionStrings`:
+
+```json
+"ConnectionStrings": {
+  "Dataverse": "AuthType=ClientSecret;Url=https://<org>.crm.dynamics.com/;ClientId=<host-client-id>;ClientSecret=<client-secret>"
+}
+```
+
+Replace `<org>`, `<host-client-id>` and `<client-secret>` with your values. The host refuses to start while the placeholder is still there. For other ways to sign in to Dataverse, such as a certificate, see [connection strings](https://learn.microsoft.com/power-apps/developer/data-platform/xrm-tooling/use-connection-strings-xrm-tooling-connect).
+
+> [!WARNING]
+> The connection string contains a secret. Don't commit `appsettings.json` with a real value. Keep the placeholder in the file and store the real value with [user secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets) instead; they override `appsettings.json` in Development (the project already has a `UserSecretsId`):
 
 ```bash
 cd src/CaseManagementApiHost
@@ -164,7 +175,7 @@ Settings are read from `appsettings.json`, then `appsettings.{Environment}.json`
 
 | Setting | Default | Description |
 | --- | --- | --- |
-| `ConnectionStrings:Dataverse` | none, required | Dataverse connection string of the host's application user. A secret: never commit it. |
+| `ConnectionStrings:Dataverse` | placeholder, required | Dataverse connection string of the host's application user. A secret: never commit it. |
 | `LogicApi:Project` | `Case Management` | The Logic Fabric project, exactly as named in the Logic Fabric API Builder app. |
 | `LogicApi:Api` | `Customer Portal API` | The API, exactly as named in the app. |
 | `LogicApi:Version` | `latest` (`draft` in Development) | `draft`, `latest` or a published version such as `1.0`. |
@@ -235,7 +246,7 @@ The same build runs in every environment; only the settings differ. To serve two
 
 | Symptom | Check |
 | --- | --- |
-| The host stops at startup with "ConnectionStrings:Dataverse is not configured" | Set the user secret (step 4), or the connection string on the host. |
+| The host stops at startup with "ConnectionStrings:Dataverse is not configured" | Replace the placeholder in `appsettings.json`, set the user secret (step 4), or set the connection string on the host. |
 | The host stops at startup naming the project, API or version | Names must match the app exactly; `latest` needs at least one published version; check the version number. |
 | Every call answers `401` | The token's `aud` must equal `Authentication:Audience`, and its issuer must match the authority. With a v1.0 token (`iss` is `https://sts.windows.net/...`), set `requestedAccessTokenVersion` to `2` in the API's manifest. Decode a token at [jwt.ms](https://jwt.ms) to compare. |
 | A valid customer gets `401` | No active contact has the token's email address in **Email**, or the token has no email claim. Check `preferred_username` or `email` in the token. |

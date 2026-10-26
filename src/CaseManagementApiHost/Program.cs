@@ -10,11 +10,12 @@ var logicApi = builder.Configuration.GetSection(LogicApiOptions.SectionName).Get
 
 // The Dataverse connection loads the API definition and runs every call. It contains a
 // secret: keep it in user secrets locally and in App Service or Key Vault in Azure.
+// appsettings.json only holds a placeholder, with its values in <angle brackets>.
 var dataverse = builder.Configuration.GetConnectionString("Dataverse");
-if (string.IsNullOrWhiteSpace(dataverse))
+if (string.IsNullOrWhiteSpace(dataverse) || dataverse.Contains('<'))
 {
     throw new InvalidOperationException(
-        "ConnectionStrings:Dataverse is not configured. Run 'dotnet user-secrets set \"ConnectionStrings:Dataverse\" \"<connection string>\"' " +
+        "ConnectionStrings:Dataverse is not configured: replace the placeholder in appsettings.json, or run 'dotnet user-secrets set \"ConnectionStrings:Dataverse\" \"<connection string>\"' " +
         "in the project folder, or set the connection string on the host.");
 }
 
