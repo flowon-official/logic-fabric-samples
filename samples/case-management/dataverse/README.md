@@ -70,4 +70,10 @@ The sample follows the tutorial, with three changes that the product requires to
 
 ## Known issue
 
-In Dataverse environments that have a business closures calendar, **Add Business Days** currently fails with "'Calendar' entity doesn't contain attribute with Name = 'calendarrules'". The `Case response due date` formula uses it, so until the fix is released, `Route new case` and the `Case handling` triage due date fail in those environments. Validation before the save is not affected.
+In Dataverse online, **Add Business Days**, **Is Business Day** and **Business Days Between** currently fail with "'Calendar' entity doesn't contain attribute with Name = 'calendarrules'", whether or not the environment has any business closures defined. The `Case response due date` formula uses **Add Business Days**, so until the fix is released:
+
+- `Route new case` fails at its due-date step, so new cases are not assigned to `Service Triage` and the triage team is not notified.
+- The `Case rules` recipe runs `Route new case` before it starts `Case handling`, so the process doesn't start either. Started on its own, `Case handling` can't calculate the **Triage** due date.
+- `Get case SLA` fails.
+
+Validation before the save is not affected: `New case checks` still refuses incomplete cases.
