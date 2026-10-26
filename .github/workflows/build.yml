@@ -19,19 +19,15 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Restore
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build --no-restore --configuration Release
-
-      - name: Test
-        run: dotnet test --no-build --configuration Release --logger "console;verbosity=normal"
-
-      - name: Publish
-        run: dotnet publish src/CaseManagementApiHost --no-build --configuration Release --output publish
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: CaseManagementApiHost
-          path: publish
+      # Every solution under samples/ is built and tested, so a new sample needs no change here.
+      - name: Build and test every sample
+        shell: bash
+        run: |
+          set -euo pipefail
+          find samples -name '*.slnx' -o -name '*.sln' | sort | while read -r solution; do
+            echo "::group::$solution"
+            dotnet restore "$solution"
+            dotnet build "$solution" --no-restore --configuration Release
+            dotnet test "$solution" --no-build --configuration Release
+            echo "::endgroup::"
+          done

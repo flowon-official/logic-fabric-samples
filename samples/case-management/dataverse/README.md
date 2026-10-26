@@ -1,6 +1,6 @@
 # Case Management sample for Dataverse
 
-The complete Logic Fabric solution from the [case management tutorial](https://docs.flowon.com/tutorials/), ready to import into a Dataverse environment. It includes the **Customer Portal API** that the [host in this repository](../README.md) serves.
+The complete Logic Fabric solution from the [case management tutorial](https://docs.flowon.com/tutorials/), ready to import into a Dataverse environment. It includes the **Customer Portal API** that the [API host in this sample](../api-host/README.md) serves.
 
 | File | What it is |
 | --- | --- |
@@ -31,7 +31,7 @@ The solution holds what Dataverse needs for the recipe (its two plug-in steps on
 
 - A Dataverse environment with **Dynamics 365 Customer Service** (for the Case table).
 - Logic Fabric **1.0.0.37 or later**: Logic Fabric Base, Logic Composer, Process Orchestrator and API Builder, with their Tools solutions.
-- The Logic Fabric CLI, installed from nuget.org. See [Install the Logic Fabric CLI](../README.md#install-the-logic-fabric-cli).
+- The Logic Fabric CLI, installed from nuget.org. See [Install the Logic Fabric CLI](../../../README.md#install-the-logic-fabric-cli).
 - An account with System Administrator, or System Customizer with the **Logic Fabric Author** and **Process Designer** roles.
 
 ## Import
@@ -56,7 +56,7 @@ The solution holds what Dataverse needs for the recipe (its two plug-in steps on
 
 5. **Check it.** Create a case without a **Case Type**: the save is refused with `Choose a case type`. See [Part 4 of the tutorial](https://docs.flowon.com/tutorials/case-management-4-recipe/#test-it-on-a-real-case) for the full test.
 
-To serve the API, run the [host](../README.md) against the same environment.
+To serve the API, run the [API host](../api-host/README.md) against the same environment.
 
 ## How it differs from the tutorial
 

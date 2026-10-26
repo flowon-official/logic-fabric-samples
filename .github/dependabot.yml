@@ -1,7 +1,9 @@
 version: 2
 updates:
+  # Every sample's projects, wherever they sit under samples/.
   - package-ecosystem: nuget
-    directory: /
+    directories:
+      - /samples/**
     schedule:
       interval: weekly
     groups:
