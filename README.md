@@ -79,7 +79,37 @@ The contact lookup is in [`DataverseCustomerDirectory.cs`](src/CaseManagementApi
 
 ### 1. Import the Case Management sample
 
-The [`dataverse/`](dataverse/) folder holds the complete case management solution, including the published **Customer Portal API**. Import it as described in [its README](dataverse/README.md). The API is:
+The [`dataverse/`](dataverse/) folder holds the complete case management solution, including the published **Customer Portal API**:
+
+| File | Use it for |
+| --- | --- |
+| `ContosoService_unmanaged.zip` | Development environments, where you want to open and change the logic |
+| `ContosoService_managed.zip` | Test and production environments |
+| `Case_Management.flop` | The Logic Fabric package: configuration values, localized resources, logic blocks, flows, the recipe, the business process and the API |
+| `mappings/*.datamap.xml` | Values that differ per environment: team IDs, SLA days, escalation mailbox |
+
+You need Dynamics 365 Customer Service (for the Case table), Logic Fabric 1.0.0.37 or later with API Builder, and the [Logic Fabric CLI](https://docs.flowon.com/alm/cli/installation/) (`dotnet tool install -g Flowon.Xrm.Tools.CommandLine`).
+
+1. **Create the teams** `Service Triage`, `Tier 2 Support`, `Service Managers` and `Support Supervisors` in the target environment, as owner teams in the root business unit.
+2. **Map them.** In [`dataverse/mappings/entity.datamap.xml`](dataverse/mappings/entity.datamap.xml), set each team's **Target** `id` to the ID of the matching team in your environment. Leave the **Source** values as they are.
+3. **Adjust the settings** in [`dataverse/mappings/configuration.datamap.xml`](dataverse/mappings/configuration.datamap.xml) if you like, for example your own escalation mailbox. Change only the **Target** values.
+4. **Import** the solution and the package with one command, from the `dataverse` folder:
+
+   ```bash
+   flowon-dynamics import \
+     -c "AuthType=OAuth;Url=https://<org>.crm.dynamics.com;Username=<you>;AppId=51f81489-12ee-4a9e-aaae-a2591f45987d;RedirectUri=http://localhost;LoginPrompt=Auto" \
+     --solution-file-path ./ContosoService_managed.zip \
+     --package-file-path ./Case_Management.flop \
+     --map-file-path ./mappings/configuration.datamap.xml ./mappings/entity.datamap.xml
+   ```
+
+   Use `./ContosoService_unmanaged.zip` in a development environment. The solution is imported first, then the package with the mappings applied; the command ends with `Import completed in … seconds.`
+
+5. **Check it:** create a case without a **Case Type**. The save is refused with `Choose a case type`.
+
+[`dataverse/README.md`](dataverse/README.md) describes every artifact, how the sample differs from the tutorial, and a known issue with **Add Business Days**.
+
+The API is:
 
 | In API Studio | Value |
 | --- | --- |
