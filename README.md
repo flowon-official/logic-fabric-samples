@@ -74,6 +74,45 @@ The contact lookup is in [`DataverseCustomerDirectory.cs`](src/CaseManagementApi
 - A Dataverse environment (or Dynamics 365 Customer Engagement) with Logic Fabric and the **Logic Fabric API Builder** and **Logic Fabric API Builder Tools** solutions installed.
 - The **Customer Portal API**: import it with the rest of the case management sample from [`dataverse/`](dataverse/), or use your own API.
 - A Microsoft Entra ID tenant where you can create app registrations.
+- The Logic Fabric CLI, to import the sample. See [Install the Logic Fabric CLI](#install-the-logic-fabric-cli).
+
+### Install the Logic Fabric CLI
+
+The Logic Fabric CLI (`flowon-dynamics`) imports and exports Logic Fabric projects. It is a .NET tool published on nuget.org as [`Flowon.Xrm.Tools.CommandLine`](https://www.nuget.org/packages/Flowon.Xrm.Tools.CommandLine) and needs the .NET 10 SDK or runtime.
+
+Install it once for your user account:
+
+```bash
+dotnet tool install --global Flowon.Xrm.Tools.CommandLine
+flowon-dynamics --version
+```
+
+The second command prints the installed version, for example `1.1.7+…`. If `flowon-dynamics` isn't found, open a new terminal so it picks up the .NET tools folder (`%USERPROFILE%\.dotnet\tools` on Windows, `~/.dotnet/tools` on macOS and Linux) on your `PATH`.
+
+| To | Run |
+| --- | --- |
+| Update to the latest version | `dotnet tool update --global Flowon.Xrm.Tools.CommandLine` |
+| Install a specific version | `dotnet tool install --global Flowon.Xrm.Tools.CommandLine --version 1.1.7` |
+| Remove it | `dotnet tool uninstall --global Flowon.Xrm.Tools.CommandLine` |
+| See the commands | `flowon-dynamics --help` |
+
+Use a version that matches the Logic Fabric solutions in your environment, so the package format is the same at both ends.
+
+**In a build pipeline or a team repository,** install it as a local tool instead, so everyone uses the same version:
+
+```bash
+dotnet new tool-manifest
+dotnet tool install Flowon.Xrm.Tools.CommandLine --version 1.1.7
+dotnet tool run flowon-dynamics --version
+```
+
+The version is recorded in `dotnet-tools.json`; commit that file, and run `dotnet tool restore` on a new machine or build agent.
+
+**If the install fails with `401 Unauthorized` or "Unable to load the service index",** a private package feed configured on your machine is failing. Install from nuget.org only:
+
+```bash
+dotnet tool install --global Flowon.Xrm.Tools.CommandLine --add-source https://api.nuget.org/v3/index.json --ignore-failed-sources
+```
 
 ## Set up
 
@@ -88,7 +127,7 @@ The [`dataverse/`](dataverse/) folder holds the complete case management solutio
 | `Case_Management.flop` | The Logic Fabric package: configuration values, localized resources, logic blocks, flows, the recipe, the business process and the API |
 | `mappings/*.datamap.xml` | Values that differ per environment: team IDs, SLA days, escalation mailbox |
 
-You need Dynamics 365 Customer Service (for the Case table), Logic Fabric 1.0.0.37 or later with API Builder, and the [Logic Fabric CLI](https://docs.flowon.com/alm/cli/installation/) (`dotnet tool install -g Flowon.Xrm.Tools.CommandLine`).
+You need Dynamics 365 Customer Service (for the Case table), Logic Fabric 1.0.0.37 or later with API Builder, and the [Logic Fabric CLI](#install-the-logic-fabric-cli).
 
 1. **Create the teams** `Service Triage`, `Tier 2 Support`, `Service Managers` and `Support Supervisors` in the target environment, as owner teams in the root business unit.
 2. **Map them.** In [`dataverse/mappings/entity.datamap.xml`](dataverse/mappings/entity.datamap.xml), set each team's **Target** `id` to the ID of the matching team in your environment. Leave the **Source** values as they are.

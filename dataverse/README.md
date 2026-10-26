@@ -31,7 +31,7 @@ The solution holds what Dataverse needs for the recipe (its two plug-in steps on
 
 - A Dataverse environment with **Dynamics 365 Customer Service** (for the Case table).
 - Logic Fabric **1.0.0.37 or later**: Logic Fabric Base, Logic Composer, Process Orchestrator and API Builder, with their Tools solutions.
-- The [Logic Fabric CLI](https://docs.flowon.com/alm/cli/installation/) (`dotnet tool install -g Flowon.Xrm.Tools.CommandLine`).
+- The Logic Fabric CLI, installed from nuget.org. See [Install the Logic Fabric CLI](../README.md#install-the-logic-fabric-cli).
 - An account with System Administrator, or System Customizer with the **Logic Fabric Author** and **Process Designer** roles.
 
 ## Import
